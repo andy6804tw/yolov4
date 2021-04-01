@@ -1,1 +1,11 @@
 .DS_Store
+darknet/
+.ipynb_checkpoints/
+weights/
+data/
+anchors.txt
+counters_per_class.txt
+cloud.png
+test.jpg
+chart.png
+chart_yolov4-car.png
