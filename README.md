@@ -156,3 +156,11 @@ darknet/darknet detector test data/car.data data/yolov4-car-test.cfg weights/yol
 ```
 
 ![](./screenshot/img07.jpg)
+
+影像測試:
+
+```bash
+darknet/darknet detector demo data/car.data data/yolov4-car-test.cfg weights/yolov4-car_final.weights -ext_output -dont_show traffic.mov -out_filename result.avi
+```
+
+![](./screenshot/img08.gif)
