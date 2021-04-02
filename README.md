@@ -109,7 +109,7 @@ labelimg
 ```
 
 ### 2-3 修改預設 anchors 值
-由於我們在 `yolov4.cfg` 中所設定的影像寬高為 416。可以使用以下指令自動算出 anchors 值。
+使用 k-means 來生成 anchors，並修改 anchors 值。由於我們在 `yolov4.cfg` 中所設定的影像寬高為 416。可以使用以下指令自動算出 anchors 值。
 
 ```bash
 !darknet/darknet detector calc_anchors data/car.data -num_of_clusters 9 -width 608 -height 608 -show
@@ -132,15 +132,27 @@ labelimg
 darknet/darknet detector train data/car.data data/yolov4-car.cfg data/yolov4.conv.137 -dont_show -map -gpus 0,1,2,3
 ```
 
-訓練結束後即可查看訓練曲線。
+- 每 100 次迭代會生成 yolov4-car_last.weights
+- 每 1000 次迭代會生成 yolov4-car_xxxx.weights 
+- 若有給 val 資料的話會在第 1000 個 batch 時計算 mAP 並存下最好的 weights - yolov4-car_best.weights，之後每 100 次迭代都會計算 mAP
+- 最後訓練完會生成 yolov4-car_final.weights 我們使用這個去預測
+- 可以在 chart_yolov4-car.png 觀察到訓練歷史
+
 ![](./screenshot/img06.png)
 
 ### 2-5 測試圖片
-等待訓練完後，就可以拿訓練好的 weight 來做預測。訓練好的 weights 會放在 weights 資料夾裡。
+等待訓練完後，就可以拿訓練好的 weight 來做預測。訓練好的 weights 會放在 weights 資料夾裡。首先我們先複製 `yolov4-car.cfg` 並改名為 `yolov4-car-test.cfg`。並將 `batch_size` 與 `subdivision` 設為1。
 
 ```
 !cp data/yolov4-car.cfg data/yolov4-car-test.cfg
-# 將 Training 注釋掉, Testing 打開
 !sed -i '2s/16/1/' data/yolov4-car-test.cfg # batch_size 設為 1
 !sed -i '3s/8/1/' data/yolov4-car-test.cfg # subdivision 設為 1
 ```
+
+我們挑選最後訓練完成的模型 `yolov4-car_final.weights` 並使用鋼索建立好的設定檔 `yolov4-car-test.cfg` 為 `test.jpg` 進行物件偵測。
+
+```bash
+darknet/darknet detector test data/car.data data/yolov4-car-test.cfg weights/yolov4-car_final.weights test.jpg
+```
+
+![](./screenshot/img07.jpg)
